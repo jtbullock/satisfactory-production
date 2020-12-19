@@ -48,3 +48,19 @@ module Production =
         recipe.MaterialDependencies
         |> List.map ( fun dependency -> { dependency with Amount = dependency.Amount * amount } ) 
 
+        
+// Describe deps for 2 iron plate
+//var ironPlateDeps =   
+//[
+//	{
+//		material: IRON_INGOT
+//		amount: 3
+//		dependencies: [
+//			{
+//				material: IRON_ORE
+//				amount: 3
+//				dependencies: []
+//			}
+//		]
+//	}
+//]
