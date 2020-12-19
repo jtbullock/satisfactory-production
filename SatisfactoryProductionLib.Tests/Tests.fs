@@ -30,6 +30,20 @@ type ProductionTestClass () =
 
     [<TestMethod>]
     member this.TestGetRecipeDependencies() =
-        let expected : list<Production.MaterialDependency> = [ { Material = Materials.IronOreId; Amount = 10 } ]
-        let actual = Production.determineRecipeDependencies Production.ironIngotRecipe 10
+        let expected : list<Production.MaterialDependencyReport> =
+            [ { Material = MaterialIds.IronOre;
+                Amount = 10.0;
+                Dependencies = [] } ]
+
+        let actual = Production.determineRecipeDependencies MaterialRecipes.ironIngot 10.0
+        Assert.AreEqual(expected, actual)
+
+    [<TestMethod>]
+    member this.TestGetRecipeDependenciesForIronPlate() =
+        let expected : list<Production.MaterialDependencyReport> =
+            [ { Material = MaterialIds.IronIngot
+                Amount = 15.0
+                Dependencies = [ { Material = MaterialIds.IronOre; Amount = 15.0; Dependencies = [] } ] } ]
+
+        let actual = Production.determineRecipeDependencies MaterialRecipes.ironPlate 10.0
         Assert.AreEqual(expected, actual)

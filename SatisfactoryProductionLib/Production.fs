@@ -1,52 +1,62 @@
 ﻿namespace SatisfactoryProductionLib
 open System.Collections.Generic
 
-module Materials =
+module MaterialIds =
+    let IronOre = "IRON_ORE"
+    let IronIngot = "IRON_INGOT"
+    let IronPlate = "IRON_PLATE"
+    let IronRod = "IRON_ROD"
+    let Screw = "SCREW"
+    let ReinforcedIronPlate = "REINFORCED_IRON_PLATE"
+
+module MaterialRecipes =
+    type MaterialDependency = { Material: string; Amount: float }
     
-    let IronOreId = "IRON_ORE"
-    let IronIngotId = "IRON_INGOT"
-    let IronPlateId = "IRON_PLATE"
-
-    type Material = 
-        { Id: string
-          Name: string
-          IsNaturallyOcurring: bool }
-
-    let ironOreMaterial = 
-        { Id = IronOreId
-          Name = "Iron Ore"
-          IsNaturallyOcurring = true }
-
-    let ironIngotMaterial = 
-        { Id = IronIngotId
-          Name = "Iron Ingot"
-          IsNaturallyOcurring = false }
-
-module Production =
-
-    type MaterialDependency = { Material: string; Amount: int }
-
     type MaterialRecipe = 
         { OutputMaterial: string
-          OutputCount: int
           MaterialDependencies: list<MaterialDependency> }
+    
+    let ironIngot = 
+        { OutputMaterial = MaterialIds.IronIngot
+          MaterialDependencies = [ { Material = MaterialIds.IronOre; Amount = 1.0  } ] }
+    
+    let ironPlate = 
+        { OutputMaterial = MaterialIds.IronPlate
+          MaterialDependencies = [ { Material = MaterialIds.IronIngot; Amount = 1.5 } ] }
 
-    let ironIngotRecipe = 
-        { OutputMaterial = Materials.IronIngotId
-          OutputCount = 1
-          MaterialDependencies = [ { Material = Materials.IronOreId; Amount = 1  } ] }
+    let ironRod =
+        { OutputMaterial = MaterialIds.IronRod
+          MaterialDependencies = [ { Material = MaterialIds.IronIngot; Amount = 1.0 } ] }
 
-    let ironPlateRecipe = 
-        { OutputMaterial = Materials.IronPlateId
-          OutputCount = 2
-          MaterialDependencies = [ { Material = Materials.IronIngotId; Amount = 3 } ] }
+    let screw =
+        { OutputMaterial = MaterialIds.Screw
+          MaterialDependencies = [ { Material = MaterialIds.IronRod; Amount = 0.25 } ] }
+
+    let reinforcedIronPlate =
+        { OutputMaterial = MaterialIds.ReinforcedIronPlate
+          MaterialDependencies =
+            [ { Material = MaterialIds.IronPlate; Amount = 6.0 }
+              { Material = MaterialIds.Screw; Amount = 12.0 } ] }
 
     let recipes = new Dictionary<string, MaterialRecipe>()
-    recipes.Add(Materials.IronIngotId, ironIngotRecipe)
+    recipes.Add(MaterialIds.IronIngot, ironIngot)
+    recipes.Add(MaterialIds.IronPlate, ironPlate)
+    recipes.Add(MaterialIds.IronRod, ironRod)
+    recipes.Add(MaterialIds.Screw, screw)
+    recipes.Add(MaterialIds.ReinforcedIronPlate, reinforcedIronPlate)
+
+module Production =
+    type MaterialDependencyReport =
+        { Material: string
+          Amount: float
+          Dependencies: list<MaterialDependencyReport> }
     
-    let determineRecipeDependencies (recipe: MaterialRecipe) amount = 
+    let rec determineRecipeDependencies (recipe: MaterialRecipes.MaterialRecipe) (amount: float) : list<MaterialDependencyReport> = 
         recipe.MaterialDependencies
-        |> List.map ( fun dependency -> { dependency with Amount = dependency.Amount * amount } ) 
+        |> List.map ( fun dependency ->
+            { Material = dependency.Material
+              Amount = dependency.Amount * amount
+              Dependencies = if (MaterialRecipes.recipes.ContainsKey dependency.Material) then determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount) else [] } ) 
 
         
 // Describe deps for 2 iron plate

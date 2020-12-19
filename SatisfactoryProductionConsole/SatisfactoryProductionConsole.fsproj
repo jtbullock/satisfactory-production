@@ -9,4 +9,7 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SatisfactoryProductionLib\SatisfactoryProductionLib.fsproj" />
+  </ItemGroup>
 </Project>
