@@ -1,42 +1,50 @@
 ﻿namespace SatisfactoryProductionLib
+open System.Collections.Generic
 
 module Materials =
     
-    let IRON_ORE = "IRON_ORE"
-    let IRON_INGOT = "IRON_INGOT"
-    let IRON_PLATE = "IRON_PLATE"
+    let IronOreId = "IRON_ORE"
+    let IronIngotId = "IRON_INGOT"
+    let IronPlateId = "IRON_PLATE"
 
     type Material = 
-        { id: string
-          name: string
-          isNaturallyOcurring: bool }
+        { Id: string
+          Name: string
+          IsNaturallyOcurring: bool }
 
     let ironOreMaterial = 
-        { id = IRON_ORE
-          name = "Iron Ore"
-          isNaturallyOcurring = true }
+        { Id = IronOreId
+          Name = "Iron Ore"
+          IsNaturallyOcurring = true }
 
     let ironIngotMaterial = 
-        { id = IRON_INGOT
-          name = "Iron Ingot"
-          isNaturallyOcurring = false }
+        { Id = IronIngotId
+          Name = "Iron Ingot"
+          IsNaturallyOcurring = false }
 
 module Production =
 
-    type MaterialDependency = { material: string; amount: int }
+    type MaterialDependency = { Material: string; Amount: int }
 
     type MaterialRecipe = 
-        { outputMaterial: string
-          outputCount: int
-          materialDependencies: list<MaterialDependency> }
+        { OutputMaterial: string
+          OutputCount: int
+          MaterialDependencies: list<MaterialDependency> }
 
-    let ironIngotRecipe = {
-        outputMaterial = Materials.IRON_INGOT
-        outputCount = 1
-        materialDependencies = [ { material = Materials.IRON_ORE; amount = 1  } ]
-    }
+    let ironIngotRecipe = 
+        { OutputMaterial = Materials.IronIngotId
+          OutputCount = 1
+          MaterialDependencies = [ { Material = Materials.IronOreId; Amount = 1  } ] }
 
+    let ironPlateRecipe = 
+        { OutputMaterial = Materials.IronPlateId
+          OutputCount = 2
+          MaterialDependencies = [ { Material = Materials.IronIngotId; Amount = 3 } ] }
+
+    let recipes = new Dictionary<string, MaterialRecipe>()
+    recipes.Add(Materials.IronIngotId, ironIngotRecipe)
+    
     let determineRecipeDependencies (recipe: MaterialRecipe) amount = 
-        recipe.materialDependencies
-        |> List.map ( fun dependency -> { dependency with amount = dependency.amount * amount } ) 
-        
+        recipe.MaterialDependencies
+        |> List.map ( fun dependency -> { dependency with Amount = dependency.Amount * amount } ) 
+
