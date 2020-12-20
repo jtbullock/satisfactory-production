@@ -18,7 +18,9 @@ let main argv =
     let aggResult = Production.buildProductionLevels result
 
     printfn "----Generated dependency aggregates---"
+    printfn "%-22s %5s %10s" "Material" "Tier" "Amount"
+
     aggResult
-    |> List.iter (fun item -> printfn "%s - %i - %f" item.Material item.Level item.Amount )
+    |> List.iter (fun item -> printfn "%-22s %5i %10.1f" item.Material item.Level item.Amount )
 
     0 // return an integer exit code

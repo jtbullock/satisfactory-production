@@ -70,6 +70,8 @@ module MaterialRecipes =
     recipes.Add(MaterialIds.ModularFrame, modularFrame)
 
 module Production =
+
+    // ***** Dependency Tree ***** //
     type MaterialDependencyReport =
         { Material: string
           Amount: float
@@ -78,17 +80,28 @@ module Production =
     let rec determineRecipeDependencies (recipe: MaterialRecipes.MaterialRecipe) (amount: float) : list<MaterialDependencyReport> = 
         recipe.MaterialDependencies
         |> List.map ( fun dependency ->
+
+            let dependencies =
+                if (MaterialRecipes.recipes.ContainsKey dependency.Material) then
+                    determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount)
+                else
+                    []
+
             { Material = dependency.Material
               Amount = dependency.Amount * amount
-              Dependencies = if (MaterialRecipes.recipes.ContainsKey dependency.Material) then determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount) else [] } )
+              Dependencies = dependencies } )
 
+    // ***** Production Levels ***** //
     type ProductionItem =
         { Material: string
           Amount: float
           Level: int }
 
+    let updateProductionItem listItem amount level =
+        { listItem with Amount = listItem.Amount + amount; Level = if( level > listItem.Level ) then level else listItem.Level }
+
     let updateAmount material amount level listItem =
-        if( listItem.Material = material ) then {listItem with Amount = listItem.Amount + amount; Level = if( level > listItem.Level ) then level else listItem.Level } else listItem
+        if( listItem.Material = material ) then updateProductionItem listItem amount level else listItem
 
     let rec buildProductionLevelsRec level productAggregates dependency =
         let agg = List.fold (buildProductionLevelsRec ( level + 1 ) ) productAggregates dependency.Dependencies
@@ -101,55 +114,4 @@ module Production =
 
     let buildProductionLevels (dependencies: list<MaterialDependencyReport>) =
         List.fold (buildProductionLevelsRec 0 ) List.empty dependencies
-
-
-        
-
-// For each dependency...
-
-
-// [
-//   [ { Material = "IRON_ORE", Amount = 12.0 } ];
-//   [ { Material = "IRON_INGOT", Amount = 12.0 } ];
-//   [ { Material = "IRON_ROD", Amount = 3.0 } ];
-//   [ { Material = "SCREW", Amount = 12.0 }; { Material = "IRON_PLATE", Amount = 9 } ];
-// ]
-
-// [ 
-//
-
-
-// [{ Material = "IRON_PLATE"
-// Amount = 6.0
-// Dependencies = [{ Material = "IRON_INGOT"
-//                   Amount = 9.0
-//                   Dependencies = [{ Material = "IRON_ORE"
-//                                     Amount = 9.0
-//                                     Dependencies = [] }] }] };
-//  { Material = "SCREW"
-// Amount = 12.0
-// Dependencies =
-//               [{ Material = "IRON_ROD"
-//                  Amount = 3.0
-//                  Dependencies = [{ Material = "IRON_INGOT"
-//                                    Amount = 3.0
-//                                    Dependencies = [{ Material = "IRON_ORE"
-//                                                      Amount = 3.0
-//                                                      Dependencies = [] }] }] }] }]
-
-
-// Describe deps for 2 iron plate
-//var ironPlateDeps =   
-//[
-//	{
-//		material: IRON_INGOT
-//		amount: 3
-//		dependencies: [
-//			{
-//				material: IRON_ORE
-//				amount: 3
-//				dependencies: []
-//			}
-//		]
-//	}
-//]
+        |> List.sortBy (fun r -> r.Level)
