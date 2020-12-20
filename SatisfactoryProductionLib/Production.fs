@@ -8,6 +8,9 @@ module MaterialIds =
     let IronRod = "IRON_ROD"
     let Screw = "SCREW"
     let ReinforcedIronPlate = "REINFORCED_IRON_PLATE"
+    let Rotor = "ROTOR"
+    let SmartPlate = "SMART_PLATE"
+    let ModularFrame = "MODULAR_FRAME"
 
 module MaterialRecipes =
     type MaterialDependency = { Material: string; Amount: float }
@@ -38,12 +41,33 @@ module MaterialRecipes =
             [ { Material = MaterialIds.IronPlate; Amount = 6.0 }
               { Material = MaterialIds.Screw; Amount = 12.0 } ] }
 
+    let rotor =
+        { OutputMaterial = MaterialIds.Rotor
+          MaterialDependencies =
+            [ { Material = MaterialIds.IronRod; Amount = 5.0 }
+              { Material = MaterialIds.Screw; Amount = 25.0 } ] }
+
+    let smartPlate =
+        { OutputMaterial = MaterialIds.SmartPlate
+          MaterialDependencies =
+            [ { Material = MaterialIds.ReinforcedIronPlate; Amount = 1.0 }
+              { Material = MaterialIds.Rotor; Amount = 1.0 } ] }
+
+    let modularFrame =
+        { OutputMaterial = MaterialIds.ModularFrame
+          MaterialDependencies =
+            [ { Material = MaterialIds.ReinforcedIronPlate; Amount = 1.5 }
+              { Material = MaterialIds.IronRod; Amount = 6.0 } ] }
+
     let recipes = new Dictionary<string, MaterialRecipe>()
     recipes.Add(MaterialIds.IronIngot, ironIngot)
     recipes.Add(MaterialIds.IronPlate, ironPlate)
     recipes.Add(MaterialIds.IronRod, ironRod)
     recipes.Add(MaterialIds.Screw, screw)
     recipes.Add(MaterialIds.ReinforcedIronPlate, reinforcedIronPlate)
+    recipes.Add(MaterialIds.Rotor, rotor)
+    recipes.Add(MaterialIds.SmartPlate, smartPlate)
+    recipes.Add(MaterialIds.ModularFrame, modularFrame)
 
 module Production =
     type MaterialDependencyReport =
@@ -63,16 +87,16 @@ module Production =
           Amount: float
           Level: int }
 
-    let updateAmount material amount listItem =
-        if( listItem.Material = material ) then {listItem with Amount = listItem.Amount + amount} else listItem
+    let updateAmount material amount level listItem =
+        if( listItem.Material = material ) then {listItem with Amount = listItem.Amount + amount; Level = if( level > listItem.Level ) then level else listItem.Level } else listItem
 
     let rec buildProductionLevelsRec level productAggregates dependency =
         let agg = List.fold (buildProductionLevelsRec ( level + 1 ) ) productAggregates dependency.Dependencies
-
+       
         let result = List.tryFind (fun a -> a.Material = dependency.Material) agg
 
         match result with
-        | Some(x) -> List.map (updateAmount dependency.Material dependency.Amount) agg
+        | Some(x) -> List.map (updateAmount dependency.Material dependency.Amount level) agg
         | None -> { Material = dependency.Material; Amount = dependency.Amount; Level = level } :: agg
 
     let buildProductionLevels (dependencies: list<MaterialDependencyReport>) =

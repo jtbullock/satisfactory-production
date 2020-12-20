@@ -8,7 +8,9 @@ open System.Collections.Generic
 let main argv =
     printfn "Satisfactory Production Target Calculator"
 
-    let result = Production.determineRecipeDependencies MaterialRecipes.reinforcedIronPlate 1.0
+    //let result = Production.determineRecipeDependencies MaterialRecipes.reinforcedIronPlate 30.0
+
+    let result = Production.determineRecipeDependencies MaterialRecipes.smartPlate 30.0
 
     printfn "----Generated dependency tree----"
     printfn "%A" result
