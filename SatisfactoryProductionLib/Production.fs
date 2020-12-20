@@ -12,16 +12,25 @@ module MaterialIds =
     let SmartPlate = "SMART_PLATE"
     let ModularFrame = "MODULAR_FRAME"
 
+module Machines =
+    let Smelter = "SMELTER"
+    let Constructor = "CONSTRUCTOR"
+    let Assembler = "ASSEMBLER"
+
 module MaterialRecipes =
     type MaterialDependency = { Material: string; Amount: float }
     
     type MaterialRecipe = 
         { OutputMaterial: string
-          MaterialDependencies: list<MaterialDependency> }
+          MaterialDependencies: list<MaterialDependency>
+          Machine: string
+          Output: int }
     
     let ironIngot = 
         { OutputMaterial = MaterialIds.IronIngot
-          MaterialDependencies = [ { Material = MaterialIds.IronOre; Amount = 1.0  } ] }
+          MaterialDependencies = [ { Material = MaterialIds.IronOre; Amount = 1.0  } ]
+          Machine = Machines.Smelter
+          Output = 30 }
     
     let ironPlate = 
         { OutputMaterial = MaterialIds.IronPlate
