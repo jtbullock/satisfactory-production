@@ -1,6 +1,21 @@
 ﻿namespace SatisfactoryProductionLib
 open System.Collections.Generic
 
+module Json =
+
+  open Newtonsoft.Json
+    
+  let serialize obj =
+    JsonConvert.SerializeObject obj
+
+  let deserialize<'a> str =
+    try
+      JsonConvert.DeserializeObject<'a> str
+      |> Result.Ok
+    with
+      // catch all exceptions and convert to Result
+      | ex -> Result.Error ex  
+
 module MaterialIds =
     let IronOre = "IRON_ORE"
     let IronIngot = "IRON_INGOT"
@@ -12,10 +27,10 @@ module MaterialIds =
     let SmartPlate = "SMART_PLATE"
     let ModularFrame = "MODULAR_FRAME"
 
-module Machines =
-    let Smelter = "SMELTER"
-    let Constructor = "CONSTRUCTOR"
-    let Assembler = "ASSEMBLER"
+//module Machines =
+//    let Smelter = "SMELTER"
+//    let Constructor = "CONSTRUCTOR"
+//    let Assembler = "ASSEMBLER"
 
 module MaterialRecipes =
     type MaterialDependency = { Material: string; Amount: float }
@@ -24,73 +39,16 @@ module MaterialRecipes =
         { OutputMaterial: string
           MaterialDependencies: list<MaterialDependency>
           Machine: string
-          Output: int }
-    
-    let ironIngot = 
-        { OutputMaterial = MaterialIds.IronIngot
-          MaterialDependencies = [ { Material = MaterialIds.IronOre; Amount = 1.0  } ]
-          Machine = Machines.Smelter
-          Output = 30 }
-    
-    let ironPlate = 
-        { OutputMaterial = MaterialIds.IronPlate
-          MaterialDependencies = [ { Material = MaterialIds.IronIngot; Amount = 1.5 } ] 
-          Machine = Machines.Constructor 
-          Output = 20 }
-
-    let ironRod =
-        { OutputMaterial = MaterialIds.IronRod
-          MaterialDependencies = [ { Material = MaterialIds.IronIngot; Amount = 1.0 } ] 
-          Machine = Machines.Constructor
-          Output = 15 }
-
-    let screw =
-        { OutputMaterial = MaterialIds.Screw
-          MaterialDependencies = [ { Material = MaterialIds.IronRod; Amount = 0.25 } ] 
-          Machine = Machines.Constructor 
-          Output = 40 }
-
-    let reinforcedIronPlate =
-        { OutputMaterial = MaterialIds.ReinforcedIronPlate
-          MaterialDependencies =
-            [ { Material = MaterialIds.IronPlate; Amount = 6.0 }
-              { Material = MaterialIds.Screw; Amount = 12.0 } ] 
-          Machine = Machines.Assembler 
-          Output = 5 }
-
-    let rotor =
-        { OutputMaterial = MaterialIds.Rotor
-          MaterialDependencies =
-            [ { Material = MaterialIds.IronRod; Amount = 5.0 }
-              { Material = MaterialIds.Screw; Amount = 25.0 } ] 
-          Machine = Machines.Assembler 
-          Output = 6 }
-
-    let smartPlate =
-        { OutputMaterial = MaterialIds.SmartPlate
-          MaterialDependencies =
-            [ { Material = MaterialIds.ReinforcedIronPlate; Amount = 1.0 }
-              { Material = MaterialIds.Rotor; Amount = 1.0 } ] 
-          Machine = Machines.Assembler
-          Output = 2 }
-
-    let modularFrame =
-        { OutputMaterial = MaterialIds.ModularFrame
-          MaterialDependencies =
-            [ { Material = MaterialIds.ReinforcedIronPlate; Amount = 1.5 }
-              { Material = MaterialIds.IronRod; Amount = 6.0 } ] 
-          Machine = Machines.Assembler
-          Output = 2 }
+          Output: float }
 
     let recipes = new Dictionary<string, MaterialRecipe>()
-    recipes.Add(MaterialIds.IronIngot, ironIngot)
-    recipes.Add(MaterialIds.IronPlate, ironPlate)
-    recipes.Add(MaterialIds.IronRod, ironRod)
-    recipes.Add(MaterialIds.Screw, screw)
-    recipes.Add(MaterialIds.ReinforcedIronPlate, reinforcedIronPlate)
-    recipes.Add(MaterialIds.Rotor, rotor)
-    recipes.Add(MaterialIds.SmartPlate, smartPlate)
-    recipes.Add(MaterialIds.ModularFrame, modularFrame)
+
+    System.IO.File.ReadAllText "recipes.json"
+    |> Json.deserialize<list<MaterialRecipe>>
+    |> function
+        | Ok res -> (List.iter (fun i -> recipes.Add(i.OutputMaterial, i)) res)
+        | Error e -> printfn "Error deserializing config"
+
 
 module Production =
 

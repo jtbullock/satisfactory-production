@@ -7,9 +7,9 @@
 
   <ItemGroup>
     <Compile Include="Program.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <None Include="recipes.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <ProjectReference Include="..\SatisfactoryProductionLib\SatisfactoryProductionLib.fsproj" />
   </ItemGroup>
 </Project>

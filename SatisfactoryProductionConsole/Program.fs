@@ -13,7 +13,7 @@ let main argv =
     let requirements : MaterialRecipes.MaterialRecipe = 
        { OutputMaterial = "Production Targets"
          Machine = ""
-         Output = 0 
+         Output = 0.0
          MaterialDependencies = [
             { Material = MaterialIds.SmartPlate; Amount = 2.0 }
             { Material = MaterialIds.ModularFrame; Amount = 2.0 }
@@ -35,3 +35,18 @@ let main argv =
     |> List.iter (fun item -> printfn "%-22s %5i %10.1f %14s %12.0f" item.Material item.Level item.Amount item.Machine item.NumberOfMachines)
 
     0 // return an integer exit code
+
+
+    // File format
+    //,
+    //{
+    //  "OutputMaterial": "",
+    //  "Machine": "",
+    //  "Output":,
+    //  "MaterialDependencies": [
+    //    {
+    //      "Material": "",
+    //      "Amount":
+    //    }
+    //  ]
+    //}

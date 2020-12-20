@@ -1,0 +1,221 @@
+﻿[
+  {
+    "OutputMaterial": "IRON_INGOT",
+    "Machine": "SMELTER",
+    "Output": 30,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_ORE",
+        "Amount": 1.0
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "IRON_PLATE",
+    "Machine": "CONSTRUCTOR",
+    "Output": 20,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_INGOT",
+        "Amount": 1.5
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "IRON_ROD",
+    "Machine": "CONSTRUCTOR",
+    "Output": 15,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_INGOT",
+        "Amount": 1.0
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "SCREW",
+    "Machine": "CONSTRUCTOR",
+    "Output": 40,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_ROD",
+        "Amount": 0.25
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "REINFORCED_IRON_PLATE",
+    "Machine": "ASSEMBLER",
+    "Output": 5,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_PLATE",
+        "Amount": 6.0
+      },
+      {
+        "Material": "SCREW",
+        "Amount": 12.0
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "ROTOR",
+    "Machine": "ASSEMBLER",
+    "Output": 6,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_ROD",
+        "Amount": 5.0
+      },
+      {
+        "Material": "SCREW",
+        "Amount": 25.0
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "SMART_PLATE",
+    "Machine": "ASSEMBLER",
+    "Output": 2,
+    "MaterialDependencies": [
+      {
+        "Material": "REINFORCED_IRON_PLATE",
+        "Amount": 1.0
+      },
+      {
+        "Material": "ROTOR",
+        "Amount": 1.0
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "MODULAR_FRAME",
+    "Machine": "ASSEMBLER",
+    "Output": 2,
+    "MaterialDependencies": [
+      {
+        "Material": "REINFORCED_IRON_PLATE",
+        "Amount": 1.5
+      },
+      {
+        "Material": "IRON_ROD",
+        "Amount": 6.0
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "COPPER_INGOT",
+    "Machine": "SMELTER",
+    "Output": 30,
+    "MaterialDependencies": [
+      {
+        "Material": "COPPER_ORE",
+        "Amount": 1
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "COPPER_WIRE",
+    "Machine": "CONSTRUCTOR",
+    "Output": 30,
+    "MaterialDependencies": [
+      {
+        "Material": "COPPER_INGOT",
+        "Amount": 0.5
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "CABLE",
+    "Machine": "CONSTRUCTOR",
+    "Output": 30,
+    "MaterialDependencies": [
+      {
+        "Material": "COPPER_WIRE",
+        "Amount": 2
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "STEEL_PIPE",
+    "Machine": "CONSTRUCTOR",
+    "Output": 20,
+    "MaterialDependencies": [
+      {
+        "Material": "STEEL_INGOT",
+        "Amount": 1.5
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "STATOR",
+    "Machine": "ASSEMBLER",
+    "Output": 5,
+    "MaterialDependencies": [
+      {
+        "Material": "STEEL_PIPE",
+        "Amount": 3
+      },
+      {
+        "Material": "COPPER_WIRE",
+        "Amount": 8
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "AUTO_WIRING",
+    "Machine": "ASSEMBLER",
+    "Output": 2.5,
+    "MaterialDependencies": [
+      {
+        "Material": "STATOR",
+        "Amount": 1
+      },
+      {
+        "Material": "CABLE",
+        "Amount": 20
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "STEEL_INGOT",
+    "Machine": "FOUNDRY",
+    "Output": 45,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_ORE",
+        "Amount": 1
+      },
+      {
+        "Material": "COAL",
+        "Amount": 1
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "STEEL_BEAM",
+    "Machine": "CONSTRUCTOR",
+    "Output": 15,
+    "MaterialDependencies": [
+      {
+        "Material": "STEEL_INGOT",
+        "Amount": 4
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "VERSATILE_FRAMEWORK",
+    "Machine": "ASSEMBLER",
+    "Output": 5,
+    "MaterialDependencies": [
+      {
+        "Material": "MODULAR_FRAME",
+        "Amount": 1
+      },
+      {
+        "Material": "STEEL_BEAM",
+        "Amount": 12
+      }
+    ]
+  }
+]
