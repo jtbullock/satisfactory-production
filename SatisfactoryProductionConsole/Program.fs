@@ -10,7 +10,17 @@ let main argv =
 
     //let result = Production.determineRecipeDependencies MaterialRecipes.reinforcedIronPlate 30.0
 
-    let result = Production.determineRecipeDependencies MaterialRecipes.smartPlate 2.0
+    let requirements : MaterialRecipes.MaterialRecipe = 
+       { OutputMaterial = "Production Targets"
+         Machine = ""
+         Output = 0 
+         MaterialDependencies = [
+            { Material = MaterialIds.SmartPlate; Amount = 2.0 }
+            { Material = MaterialIds.ModularFrame; Amount = 2.0 }
+            { Material = MaterialIds.Rotor; Amount = 6.0 }
+         ] }
+
+    let result = Production.determineRecipeDependencies requirements 1.0
 
     printfn "----Generated dependency tree----"
     printfn "%A" result
