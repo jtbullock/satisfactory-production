@@ -56,9 +56,64 @@ module Production =
         |> List.map ( fun dependency ->
             { Material = dependency.Material
               Amount = dependency.Amount * amount
-              Dependencies = if (MaterialRecipes.recipes.ContainsKey dependency.Material) then determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount) else [] } ) 
+              Dependencies = if (MaterialRecipes.recipes.ContainsKey dependency.Material) then determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount) else [] } )
+
+    type ProductionItem =
+        { Material: string
+          Amount: float
+          Level: int }
+
+    let updateAmount material amount listItem =
+        if( listItem.Material = material ) then {listItem with Amount = listItem.Amount + amount} else listItem
+
+    let rec buildProductionLevelsRec level productAggregates dependency =
+        let agg = List.fold (buildProductionLevelsRec ( level + 1 ) ) productAggregates dependency.Dependencies
+
+        let result = List.tryFind (fun a -> a.Material = dependency.Material) agg
+
+        match result with
+        | Some(x) -> List.map (updateAmount dependency.Material dependency.Amount) agg
+        | None -> { Material = dependency.Material; Amount = dependency.Amount; Level = level } :: agg
+
+    let buildProductionLevels (dependencies: list<MaterialDependencyReport>) =
+        List.fold (buildProductionLevelsRec 0 ) List.empty dependencies
+
 
         
+
+// For each dependency...
+
+
+// [
+//   [ { Material = "IRON_ORE", Amount = 12.0 } ];
+//   [ { Material = "IRON_INGOT", Amount = 12.0 } ];
+//   [ { Material = "IRON_ROD", Amount = 3.0 } ];
+//   [ { Material = "SCREW", Amount = 12.0 }; { Material = "IRON_PLATE", Amount = 9 } ];
+// ]
+
+// [ 
+//
+
+
+// [{ Material = "IRON_PLATE"
+// Amount = 6.0
+// Dependencies = [{ Material = "IRON_INGOT"
+//                   Amount = 9.0
+//                   Dependencies = [{ Material = "IRON_ORE"
+//                                     Amount = 9.0
+//                                     Dependencies = [] }] }] };
+//  { Material = "SCREW"
+// Amount = 12.0
+// Dependencies =
+//               [{ Material = "IRON_ROD"
+//                  Amount = 3.0
+//                  Dependencies = [{ Material = "IRON_INGOT"
+//                                    Amount = 3.0
+//                                    Dependencies = [{ Material = "IRON_ORE"
+//                                                      Amount = 3.0
+//                                                      Dependencies = [] }] }] }] }]
+
+
 // Describe deps for 2 iron plate
 //var ironPlateDeps =   
 //[
