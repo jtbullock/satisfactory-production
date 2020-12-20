@@ -34,39 +34,53 @@ module MaterialRecipes =
     
     let ironPlate = 
         { OutputMaterial = MaterialIds.IronPlate
-          MaterialDependencies = [ { Material = MaterialIds.IronIngot; Amount = 1.5 } ] }
+          MaterialDependencies = [ { Material = MaterialIds.IronIngot; Amount = 1.5 } ] 
+          Machine = Machines.Constructor 
+          Output = 20 }
 
     let ironRod =
         { OutputMaterial = MaterialIds.IronRod
-          MaterialDependencies = [ { Material = MaterialIds.IronIngot; Amount = 1.0 } ] }
+          MaterialDependencies = [ { Material = MaterialIds.IronIngot; Amount = 1.0 } ] 
+          Machine = Machines.Constructor
+          Output = 15 }
 
     let screw =
         { OutputMaterial = MaterialIds.Screw
-          MaterialDependencies = [ { Material = MaterialIds.IronRod; Amount = 0.25 } ] }
+          MaterialDependencies = [ { Material = MaterialIds.IronRod; Amount = 0.25 } ] 
+          Machine = Machines.Constructor 
+          Output = 40 }
 
     let reinforcedIronPlate =
         { OutputMaterial = MaterialIds.ReinforcedIronPlate
           MaterialDependencies =
             [ { Material = MaterialIds.IronPlate; Amount = 6.0 }
-              { Material = MaterialIds.Screw; Amount = 12.0 } ] }
+              { Material = MaterialIds.Screw; Amount = 12.0 } ] 
+          Machine = Machines.Assembler 
+          Output = 5 }
 
     let rotor =
         { OutputMaterial = MaterialIds.Rotor
           MaterialDependencies =
             [ { Material = MaterialIds.IronRod; Amount = 5.0 }
-              { Material = MaterialIds.Screw; Amount = 25.0 } ] }
+              { Material = MaterialIds.Screw; Amount = 25.0 } ] 
+          Machine = Machines.Assembler 
+          Output = 6 }
 
     let smartPlate =
         { OutputMaterial = MaterialIds.SmartPlate
           MaterialDependencies =
             [ { Material = MaterialIds.ReinforcedIronPlate; Amount = 1.0 }
-              { Material = MaterialIds.Rotor; Amount = 1.0 } ] }
+              { Material = MaterialIds.Rotor; Amount = 1.0 } ] 
+          Machine = Machines.Assembler
+          Output = 2 }
 
     let modularFrame =
         { OutputMaterial = MaterialIds.ModularFrame
           MaterialDependencies =
             [ { Material = MaterialIds.ReinforcedIronPlate; Amount = 1.5 }
-              { Material = MaterialIds.IronRod; Amount = 6.0 } ] }
+              { Material = MaterialIds.IronRod; Amount = 6.0 } ] 
+          Machine = Machines.Assembler
+          Output = 2 }
 
     let recipes = new Dictionary<string, MaterialRecipe>()
     recipes.Add(MaterialIds.IronIngot, ironIngot)
@@ -106,13 +120,13 @@ module Production =
           Amount: float
           Level: int }
 
-    let updateProductionItem listItem amount level =
+    let private updateProductionItem listItem amount level =
         { listItem with Amount = listItem.Amount + amount; Level = if( level > listItem.Level ) then level else listItem.Level }
 
-    let updateAmount material amount level listItem =
+    let private updateAmount material amount level listItem =
         if( listItem.Material = material ) then updateProductionItem listItem amount level else listItem
 
-    let rec buildProductionLevelsRec level productAggregates dependency =
+    let rec private buildProductionLevelsRec level productAggregates dependency =
         let agg = List.fold (buildProductionLevelsRec ( level + 1 ) ) productAggregates dependency.Dependencies
        
         let result = List.tryFind (fun a -> a.Material = dependency.Material) agg
@@ -124,3 +138,32 @@ module Production =
     let buildProductionLevels (dependencies: list<MaterialDependencyReport>) =
         List.fold (buildProductionLevelsRec 0 ) List.empty dependencies
         |> List.sortBy (fun r -> r.Level)
+
+    // ***** Machine Requirements ***** //
+    type ProductionItemWithMachineRequirements = 
+        { Material: string
+          Amount: float
+          Level: int
+          Machine: string
+          NumberOfMachines: float }
+
+    let private determineMachineRequirementsForItem (item: ProductionItem) =
+
+        if(MaterialRecipes.recipes.ContainsKey item.Material) then
+            let recipe = MaterialRecipes.recipes.[item.Material]
+
+            { Material = item.Material
+              Amount = item.Amount
+              Level = item.Level
+              Machine = recipe.Machine
+              NumberOfMachines = ceil (item.Amount / float recipe.Output) }
+         else
+            { Material = item.Material
+              Amount = item.Amount
+              Level = item.Level
+              Machine = ""
+              NumberOfMachines = 0.0 }
+
+    let determineMachineRequirements (productionItems: list<ProductionItem>) =
+        productionItems
+        |> List.map determineMachineRequirementsForItem
