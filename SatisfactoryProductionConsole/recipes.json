@@ -210,11 +210,11 @@
     "MaterialDependencies": [
       {
         "Material": "MODULAR_FRAME",
-        "Amount": 1
+        "Amount": 0.5
       },
       {
         "Material": "STEEL_BEAM",
-        "Amount": 12
+        "Amount": 6
       }
     ]
   }
