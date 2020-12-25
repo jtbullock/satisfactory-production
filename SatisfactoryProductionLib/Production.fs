@@ -41,14 +41,13 @@ module MaterialRecipes =
           Machine: string
           Output: float }
 
-    let recipes = new Dictionary<string, MaterialRecipe>()
-
-    System.IO.File.ReadAllText "recipes.json"
-    |> Json.deserialize<list<MaterialRecipe>>
-    |> function
-        | Ok res -> (List.iter (fun i -> recipes.Add(i.OutputMaterial, i)) res)
-        | Error e -> printfn "Error deserializing config"
-
+    let recipes = 
+        System.IO.File.ReadAllText "recipes.json"
+        |> Json.deserialize<list<MaterialRecipe>>
+        |> function
+            | Ok res -> List.map (fun r -> r.OutputMaterial, r) res |> Map.ofList
+            | Error e -> Map.empty
+            //| Error e -> printfn "Error deserializing config" TODO raise error
 
 module Production =
 
@@ -62,15 +61,26 @@ module Production =
         recipe.MaterialDependencies
         |> List.map ( fun dependency ->
 
-            let dependencies =
-                if (MaterialRecipes.recipes.ContainsKey dependency.Material) then
-                    determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount)
-                else
-                    []
+            //let dependencies =
+            //    if (MaterialRecipes.recipes.ContainsKey dependency.Material) then
+            //        determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount)
+            //    else
+            //        []
+
+            // let (|FileExtension|) filePath = Path.GetExtension(filePath)
+
+
+            //match dependency.Material with
+            //| material when MaterialRecipes.recipes.ContainsKey material -> determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount)
+            //| _ -> []}
 
             { Material = dependency.Material
               Amount = dependency.Amount * amount
-              Dependencies = dependencies } )
+              Dependencies =
+                  match MaterialRecipes.recipes.TryFind dependency.Material with
+                  | Some _ -> determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount)
+                  | None -> []
+            })
 
     // ***** Production Levels ***** //
     type ProductionItem =
