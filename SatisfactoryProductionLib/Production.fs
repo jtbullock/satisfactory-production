@@ -1,5 +1,4 @@
 ﻿namespace SatisfactoryProductionLib
-open System.Collections.Generic
 
 module Json =
 
@@ -41,13 +40,10 @@ module MaterialRecipes =
           Machine: string
           Output: float }
 
-    let recipes = 
-        System.IO.File.ReadAllText "recipes.json"
+    let loadRecipes sourceFile = 
+        System.IO.File.ReadAllText sourceFile 
         |> Json.deserialize<list<MaterialRecipe>>
-        |> function
-            | Ok res -> List.map (fun r -> r.OutputMaterial, r) res |> Map.ofList
-            | Error e -> Map.empty
-            //| Error e -> printfn "Error deserializing config" TODO raise error
+        |> Result.bind (fun list -> List.map (fun r -> r.OutputMaterial, r) list |> Map.ofList |> Ok )
 
 module Production =
 
@@ -57,30 +53,19 @@ module Production =
           Amount: float
           Dependencies: list<MaterialDependencyReport> }
     
-    let rec determineRecipeDependencies (recipe: MaterialRecipes.MaterialRecipe) (amount: float) : list<MaterialDependencyReport> = 
-        recipe.MaterialDependencies
-        |> List.map ( fun dependency ->
-
-            //let dependencies =
-            //    if (MaterialRecipes.recipes.ContainsKey dependency.Material) then
-            //        determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount)
-            //    else
-            //        []
-
-            // let (|FileExtension|) filePath = Path.GetExtension(filePath)
-
-
-            //match dependency.Material with
-            //| material when MaterialRecipes.recipes.ContainsKey material -> determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount)
-            //| _ -> []}
-
-            { Material = dependency.Material
-              Amount = dependency.Amount * amount
-              Dependencies =
-                  match MaterialRecipes.recipes.TryFind dependency.Material with
-                  | Some _ -> determineRecipeDependencies MaterialRecipes.recipes.[dependency.Material] (dependency.Amount * amount)
-                  | None -> []
-            })
+    let rec determineRecipeDependencies
+        (recipes: Map<string, MaterialRecipes.MaterialRecipe>)
+        (recipe: MaterialRecipes.MaterialRecipe)
+        amount : list<MaterialDependencyReport> = 
+            recipe.MaterialDependencies
+            |> List.map ( fun dependency ->
+                { Material = dependency.Material
+                  Amount = dependency.Amount * amount
+                  Dependencies =
+                      match recipes.TryFind dependency.Material with
+                      | Some recipe -> determineRecipeDependencies recipes recipe (dependency.Amount * amount)
+                      | None -> []
+                })
 
     // ***** Production Levels ***** //
     type ProductionItem =
@@ -115,10 +100,10 @@ module Production =
           Machine: string
           NumberOfMachines: float }
 
-    let private determineMachineRequirementsForItem (item: ProductionItem) =
+    let private determineMachineRequirementsForItem (recipes: Map<string, MaterialRecipes.MaterialRecipe>) (item: ProductionItem) =
 
-        if(MaterialRecipes.recipes.ContainsKey item.Material) then
-            let recipe = MaterialRecipes.recipes.[item.Material]
+        if(recipes.ContainsKey item.Material) then
+            let recipe = recipes.[item.Material]
 
             { Material = item.Material
               Amount = item.Amount
@@ -132,6 +117,6 @@ module Production =
               Machine = ""
               NumberOfMachines = 0.0 }
 
-    let determineMachineRequirements (productionItems: list<ProductionItem>) =
+    let determineMachineRequirements (recipes: Map<string, MaterialRecipes.MaterialRecipe>) (productionItems: list<ProductionItem>) =
         productionItems
-        |> List.map determineMachineRequirementsForItem
+        |> List.map ( determineMachineRequirementsForItem recipes )

@@ -1,8 +1,4 @@
-﻿// Learn more about F# at http://fsharp.org
-
-open System
-open SatisfactoryProductionLib
-open System.Collections.Generic
+﻿open SatisfactoryProductionLib
 
 [<EntryPoint>]
 let main argv =
@@ -20,27 +16,17 @@ let main argv =
             { Material = "AUTO_WIRING"; Amount = 2.5 }
          ] }
 
+    let recipes =
+        match MaterialRecipes.loadRecipes "recipes.json" with
+        | Ok recipes -> recipes
+        | Error _ -> Map.empty
+
     printfn "----Generated dependency aggregates---"
     printfn "%-22s %5s %10s %17s" "Material" "Tier" "Amount" "Machines"
 
-    Production.determineRecipeDependencies requirements 1.0
+    Production.determineRecipeDependencies recipes requirements 1.0
     |> Production.buildProductionLevels
-    |> Production.determineMachineRequirements
+    |> Production.determineMachineRequirements recipes
     |> List.iter (fun item -> printfn "%-22s %5i %10.1f %14s x%.0f" item.Material item.Level item.Amount item.Machine item.NumberOfMachines)
 
     0 // return an integer exit code
-
-
-    // File format
-    //,
-    //{
-    //  "OutputMaterial": "",
-    //  "Machine": "",
-    //  "Output":,
-    //  "MaterialDependencies": [
-    //    {
-    //      "Material": "",
-    //      "Amount":
-    //    }
-    //  ]
-    //}
