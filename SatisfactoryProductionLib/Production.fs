@@ -40,6 +40,11 @@ module MaterialRecipes =
           Machine: string
           Output: float }
 
+    //type loadRecipesResult =
+    //    | Success of Map<string, MaterialRecipe>
+    //    | FileReadError
+    //    | JsonParseError
+
     let loadRecipes sourceFile = 
         System.IO.File.ReadAllText sourceFile 
         |> Json.deserialize<list<MaterialRecipe>>
@@ -47,16 +52,16 @@ module MaterialRecipes =
 
 module Production =
 
+    open MaterialRecipes
+
     // ***** Dependency Tree ***** //
     type MaterialDependencyReport =
         { Material: string
           Amount: float
           Dependencies: list<MaterialDependencyReport> }
     
-    let rec determineRecipeDependencies
-        (recipes: Map<string, MaterialRecipes.MaterialRecipe>)
-        (recipe: MaterialRecipes.MaterialRecipe)
-        amount : list<MaterialDependencyReport> = 
+    let rec determineRecipeDependencies (recipes: Map<string, MaterialRecipe>)
+        (recipe: MaterialRecipe) amount : list<MaterialDependencyReport> = 
             recipe.MaterialDependencies
             |> List.map ( fun dependency ->
                 { Material = dependency.Material
@@ -74,19 +79,25 @@ module Production =
           Level: int }
 
     let private updateProductionItem listItem amount level =
-        { listItem with Amount = listItem.Amount + amount; Level = if( level > listItem.Level ) then level else listItem.Level }
+        { Material = listItem.Material
+          Amount = listItem.Amount + amount
+          Level =
+            match level with
+            | _ when level > listItem.Level -> level
+            | _ -> listItem.Level }
 
     let private updateAmount material amount level listItem =
-        if( listItem.Material = material ) then updateProductionItem listItem amount level else listItem
+        match listItem.Material with
+        | _ when listItem.Material = material -> updateProductionItem listItem amount level
+        | _ -> listItem
 
     let rec private buildProductionLevelsRec level productAggregates dependency =
         let agg = List.fold (buildProductionLevelsRec ( level + 1 ) ) productAggregates dependency.Dependencies
        
-        let result = List.tryFind (fun a -> a.Material = dependency.Material) agg
-
-        match result with
-        | Some(x) -> List.map (updateAmount dependency.Material dependency.Amount level) agg
-        | None -> { Material = dependency.Material; Amount = dependency.Amount; Level = level } :: agg
+        List.tryFind (fun a -> a.Material = dependency.Material) agg
+        |> function
+           | Some(_) -> List.map (updateAmount dependency.Material dependency.Amount level) agg
+           | None -> { Material = dependency.Material; Amount = dependency.Amount; Level = level } :: agg
 
     let buildProductionLevels (dependencies: list<MaterialDependencyReport>) =
         List.fold (buildProductionLevelsRec 0 ) List.empty dependencies
