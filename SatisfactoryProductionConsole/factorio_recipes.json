@@ -1,0 +1,110 @@
+﻿[
+  {
+    "OutputMaterial": "COPPER_PLATE",
+    "Machine": "FURNACE",
+    "Output": 0.3125,
+    "MaterialDependencies": [
+      {
+        "Material": "COPPER_ORE",
+        "Amount": 1
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "COPPER_CABLE",
+    "Machine": "ASSEMBLER",
+    "Output": 2,
+    "MaterialDependencies": [
+      {
+        "Material": "COPPER_PLATE",
+        "Amount": 0.5
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "IRON_PLATE",
+    "Machine": "FURNACE",
+    "Output": 0.3125,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_ORE",
+        "Amount": 1
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "GREEN_CIRCUIT",
+    "Machine": "ASSEMBLER",
+    "Output": 2,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_PLATE",
+        "Amount": 1
+      },
+      {
+        "Material": "COPPER_CABLE",
+        "Amount": 3
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "IRON_GEAR_WHEEL",
+    "Machine": "ASSEMBLER",
+    "Output": 2,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_PLATE",
+        "Amount": 2
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "INSERTER",
+    "Machine": "ASSEMBLER",
+    "Output": 2,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_PLATE",
+        "Amount": 1
+      },
+      {
+        "Material": "IRON_GEAR_WHEEL",
+        "Amount": 1
+      },
+      {
+        "Material": "GREEN_CIRCUIT",
+        "Amount": 1
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "TRANSPORT_BELT",
+    "Machine": "ASSEMBLER",
+    "Output": 4,
+    "MaterialDependencies": [
+      {
+        "Material": "IRON_PLATE",
+        "Amount": 0.5
+      },
+      {
+        "Material": "IRON_GEAR_WHEEL",
+        "Amount": 0.5
+      }
+    ]
+  },
+  {
+    "OutputMaterial": "SCIENCE_LOGISTICS",
+    "Machine": "ASSEMBLER",
+    "Output": 0.17,
+    "MaterialDependencies": [
+      {
+        "Material": "TRANSPORT_BELT",
+        "Amount": 1
+      },
+      {
+        "Material": "INSERTER",
+        "Amount": 1
+      }
+    ]
+  }
+]

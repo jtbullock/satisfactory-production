@@ -92,12 +92,11 @@ module Production =
         | _ -> listItem
 
     let rec private buildProductionLevelsRec level productAggregates dependency =
-        let agg = List.fold (buildProductionLevelsRec ( level + 1 ) ) productAggregates dependency.Dependencies
-       
-        List.tryFind (fun a -> a.Material = dependency.Material) agg
+        List.fold (buildProductionLevelsRec ( level + 1 ) ) productAggregates dependency.Dependencies
+        |> (fun tree -> (List.exists (fun a -> a.Material = dependency.Material) tree, tree)) 
         |> function
-           | Some(_) -> List.map (updateAmount dependency.Material dependency.Amount level) agg
-           | None -> { Material = dependency.Material; Amount = dependency.Amount; Level = level } :: agg
+           | (true, tree) -> List.map (updateAmount dependency.Material dependency.Amount level) tree
+           | (false, tree) -> { Material = dependency.Material; Amount = dependency.Amount; Level = level } :: tree
 
     let buildProductionLevels (dependencies: list<MaterialDependencyReport>) =
         List.fold (buildProductionLevelsRec 0 ) List.empty dependencies
@@ -120,7 +119,7 @@ module Production =
               Amount = item.Amount
               Level = item.Level
               Machine = recipe.Machine
-              NumberOfMachines = ceil (item.Amount / float recipe.Output) }
+              NumberOfMachines = (item.Amount / float recipe.Output) }
          else
             { Material = item.Material
               Amount = item.Amount

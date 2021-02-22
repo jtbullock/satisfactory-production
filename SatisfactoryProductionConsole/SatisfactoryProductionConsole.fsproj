@@ -11,5 +11,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <ProjectReference Include="..\SatisfactoryProductionLib\SatisfactoryProductionLib.fsproj" />
+    <None Include="factorio_recipes.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
